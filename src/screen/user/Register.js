@@ -34,14 +34,13 @@ export default class Registration extends Component {
     {
     
         const {email,phone, uname, fname, lname,  password} = this.state
-
           if(email == "" || password == "" || phone == "" || uname == "" || lname == ""|| fname == ""){
             Alert.alert('Validation failed', 'field(s) cannot be empty', [{text: 'Okay'}])
             return
           }
         this.setState({ loading: true})
         const formData = new FormData();
-        formData.append('feature', "user");
+        formData.append('code', "customer");
         formData.append('action', "register");
         formData.append('pwd', password);
         formData.append('email', email);
@@ -56,7 +55,7 @@ export default class Registration extends Component {
         formData.append('year', "1990");
         formData.append('gender', "M");
 
-        fetch('https://www.ita-obe.com/mobile/v1/user.php', { method: 'POST',  headers: {
+        fetch('https://www.ofidy.com/dev-mobile/v1/api.php', { method: 'POST',  headers: {
           Accept: 'application/json',
         }, body:formData,  
         })
@@ -65,7 +64,9 @@ export default class Registration extends Component {
           console.warn(res);
           if(!res.error){
           this.setState({ loading: false})
-          Actions.login({type: 'replace'});
+          AsyncStorage.setItem("user_id", res.id);
+          AsyncStorage.setItem("session_id", res.sid);
+          Actions.home({type: 'replace'});
 
           }else{
         Alert.alert('Registration failed', res.message, [{text: 'Okay'}])
@@ -117,7 +118,7 @@ export default class Registration extends Component {
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ email: text })}
+                onChangeText={text => this.setState({ phone: text })}
                 ref={(input) => this.phone = input}
               />
               <TextInput
@@ -130,7 +131,7 @@ export default class Registration extends Component {
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ email: text })}
+                onChangeText={text => this.setState({ fname: text })}
                 ref={(input) => this.firstname = input}
               />
               <TextInput
@@ -143,7 +144,7 @@ export default class Registration extends Component {
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ email: text })}
+                onChangeText={text => this.setState({ lname: text })}
                 ref={(input) => this.lastname = input}
               />
               <TextInput
@@ -156,7 +157,7 @@ export default class Registration extends Component {
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ email: text })}
+                onChangeText={text => this.setState({ uname: text })}
                 ref={(input) => this.username = input}
               />
               <TextInput
@@ -177,7 +178,7 @@ export default class Registration extends Component {
                 this.state.loading ?
                   <View>
                     <Button style={styles.buttonContainer} block iconLeft>
-                      <BarIndicator count={4} color={color.primary_color} />
+                      <BarIndicator count={4} color={'#fff'} />
                     </Button>
                   </View>
                   :
@@ -204,7 +205,7 @@ export default class Registration extends Component {
 
 
 
-                <TouchableOpacity onPress={() => Actions.forgot({ type: 'replace' })}>
+                <TouchableOpacity onPress={() => Actions.forgetpass({ type: 'replace' })}>
                   <Text style={{ color: colors.primary_color, fontWeight: '400', fontSize: 13, }}>Forgot Password </Text>
                 </TouchableOpacity>
               </View>

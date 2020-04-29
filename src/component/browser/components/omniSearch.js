@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import {
   TextInput,
-  View
+  View,
+  TouchableOpacity,
+  StyleSheet
 } from 'react-native'
+import { Icon, } from 'react-native-elements'
 
-import styles from '../styles'
 
 export default class OmniSearch extends Component {
 
   async componentDidMount() {
-    this.props.cleanSearchUrl('https://www.ofidy.com/shopping-browser-welcome.php')
+  this.props.cleanSearchUrl('https://ofidy.com/shopping-browser.php')
   }
 
   onSubmitEditing = _ => {
@@ -17,6 +19,7 @@ export default class OmniSearch extends Component {
   }
 
   render () {
+    const { loading } = this.props
     return (
       <View style={styles.toolbar}>
         <TextInput
@@ -32,3 +35,29 @@ export default class OmniSearch extends Component {
     )
   }
 }
+
+
+const styles = StyleSheet.create({
+  placeholder: {
+    marginTop: 40,
+    textAlign: 'center',
+    fontSize: 20
+  },
+  input: {
+    height: 36,
+    marginTop: 10,
+    padding: 6,
+   flex:1,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    textAlign: 'left',
+    fontSize: 16
+  },
+  toolbar: {
+    height: 80,
+    padding: 14,
+    backgroundColor: '#004701',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+})

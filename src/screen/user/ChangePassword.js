@@ -14,22 +14,32 @@ import color from '../../component/color';
 import colors from '../../component/color';
 
 
-export default class Login extends Component {
+export default class ChangePassword extends Component {
 
   constructor(props) {
     super(props);
     this.emailRef = React.createRef();
     this.state = {
       loading: false,
-      email: "",
-      password: "",
-      demail: "",
-      token: "",
-
+      password: '',
+      passwordone: "",
+      passwordtwo: "",
     }
 
   }
-  componentDidMount() { }
+  componentDidMount() {
+    AsyncStorage.getItem('email').then((value) => {
+      if (value.toString() == '') {
+        this.setState({ 'demail': "" })
+      } else {
+
+        this.setState({ 'demail': value.toString() })
+      }
+
+    })
+
+
+  }
 
   componentWillMount() {
     if (this.props.email) {
@@ -38,20 +48,26 @@ export default class Login extends Component {
   }
 
 
-  checkLogin() {
-    const { email, password } = this.state
 
-    if (password == "" || email == "") {
-      Alert.alert('Validation failed', 'Password field cannot be empty', [{ text: 'Okay' }])
+  checkLogin() {
+
+    let mail = "";
+    const { password, passwordone, passwordtwo } = this.state
+
+    if (passwordone == "" || passwordtwo == "" || password == "") {
+      Alert.alert('Validation failed', 'Password field (s) cannot be empty', [{ text: 'Okay' }])
       return
     }
 
     this.setState({ loading: true })
     const formData = new FormData();
     formData.append('code', "customer");
-    formData.append('action', "login");
-    formData.append('email', email);
-    formData.append('password', password);
+    formData.append('action', "changePassword");
+    formData.append('currentpwd', password);
+    formData.append('newpwd', passwordone);
+    formData.append('pwdcheck', passwordtwo);
+
+
 
     fetch('https://www.ofidy.com/dev-mobile/v1/api.php', {
       method: 'POST', headers: {
@@ -63,22 +79,18 @@ export default class Login extends Component {
         this.setState({ loading: false })
         console.warn(res);
         if (!res.error) {
-          AsyncStorage.setItem('aut', "yes");
-          AsyncStorage.setItem('email', email);
-          AsyncStorage.setItem("user_id", res.id);
-          AsyncStorage.setItem("session_id", res.sid);
-          AsyncStorage.setItem("first", res.id);
-          AsyncStorage.setItem("last", res.id);
-          Actions.home()
+          Alert.alert(
+            'Alert',
+            'Password changed proceed to login',
+            [
+              { text: 'Cancel', onPress: () => console.log('Cancel Pressed!') },
+              { text: 'OK', onPress: () => Actions.login({type: 'replace'}) },
+            ],
+            { cancelable: false }
+          )
         } else {
-          if (res.message == 'Please update password') {
-            Actions.changepass()
-          } else {
-            Alert.alert('Login failed', "Check your email and password", [{ text: 'Okay' }])
-            this.setState({ loading: false })
-          }
-
-
+          Alert.alert('Login failed', res.message, [{ text: 'Okay' }])
+          this.setState({ loading: false })
         }
 
 
@@ -88,6 +100,7 @@ export default class Login extends Component {
         alert(error.message);
         this.setState({ loading: false })
       });
+
   }
 
 
@@ -104,23 +117,38 @@ export default class Login extends Component {
                 style={styles.logo}
                 source={require('../../assets/logo.png')} />
             </View>
-            <Text style={{ color: colors.primary_color, margin: 20, fontWeight: '900', fontSize: 25, }}>Sign In </Text>
+            <Text style={{ color: colors.primary_color, margin: 20, fontWeight: '900', fontSize: 25, }}>Change Password </Text>
             <View style={styles.bottom}>
 
               <TextInput
-                placeholder="Enter your email address"
+                placeholder="Old Password"
                 placeholderTextColor='#3E3E3E'
                 returnKeyType="next"
-                onSubmitEditing={() => this.passwordInput.focus()}
-                keyboardType='email-address'
+                secureTextEntry
+                onSubmitEditing={() => this.password1Input.focus()}
+                keyboardType='password'
                 autoCapitalize="none"
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ email: text })}
+                onChangeText={text => this.setState({ password: text })}
               />
               <TextInput
-                placeholder="Enter your password"
+                placeholder="New Password"
+                placeholderTextColor='#3E3E3E'
+                secureTextEntry
+                returnKeyType="next"
+                onSubmitEditing={() => this.passwordInput.focus()}
+                keyboardType='password'
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={styles.input}
+                inlineImageLeft='ios-call'
+                onChangeText={text => this.setState({ passwordone: text })}
+                ref={(input) => this.password1Input = input}
+              />
+              <TextInput
+                placeholder="Confirm Password"
                 placeholderTextColor='#3E3E3E'
                 secureTextEntry
                 returnKeyType="next"
@@ -130,7 +158,7 @@ export default class Login extends Component {
                 autoCorrect={false}
                 style={styles.input}
                 inlineImageLeft='ios-call'
-                onChangeText={text => this.setState({ password: text })}
+                onChangeText={text => this.setState({ passwordtwo: text })}
                 ref={(input) => this.passwordInput = input}
               />
               {
@@ -143,16 +171,14 @@ export default class Login extends Component {
                   :
                   <View>
                     <Button onPress={() => this.checkLogin()} style={styles.buttonContainer} block iconLeft>
-                      <Text style={{ color: '#fdfdfd', fontWeight: '600' }}>SIGN IN </Text>
+                      <Text style={{ color: '#fdfdfd', fontWeight: '600' }}>Continue </Text>
                     </Button>
                   </View>
               }
 
-
-
               <View style={{ flexDirection: 'row', marginTop: 20, marginLeft: 30, marginRight: 30 }}>
-                <TouchableOpacity onPress={() => Actions.reg({ type: 'replace' })}>
-                  <Text style={{ color: colors.primary_color, fontWeight: '600', fontSize: 13, }}>Create New Account  </Text>
+                <TouchableOpacity onPress={() => Actions.login({ type: 'replace' })}>
+                  <Text style={{ color: colors.primary_color, fontWeight: '600', fontSize: 13, }}>Back To Login </Text>
                 </TouchableOpacity>
                 <View style={{ flex: 1, justifyContent: 'center', }} />
 
@@ -164,10 +190,12 @@ export default class Login extends Component {
 
 
 
-                <TouchableOpacity onPress={() => Actions.forgetpass({ type: 'replace' })}>
-                  <Text style={{ color: colors.primary_color, fontWeight: '400', fontSize: 13, }}>Forgot Password </Text>
+                <TouchableOpacity onPress={() => Actions.reg({ type: 'replace' })}>
+                  <Text style={{ color: colors.primary_color, fontWeight: '600', fontSize: 13, }}>Create New Account  </Text>
                 </TouchableOpacity>
               </View>
+
+
             </View>
 
           </View>

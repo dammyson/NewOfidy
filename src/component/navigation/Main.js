@@ -18,6 +18,9 @@ import Login from '../../screen/user/Login';
 import Register from '../../screen/user/Register';
 import Home from '../../screen/activity/Home';
 import Welcome from '../../screen/user/Welcome';
+import ForgetPassword from '../../screen/user/ForgetPassword';
+import ChangePassword from '../../screen/user/ChangePassword';
+import Cart from '../../screen/activity/Cart';
 
 
 ''
@@ -53,6 +56,9 @@ export default class Main extends Component {
             <Scene key="reg" component={Register} hideNavBar />
             <Scene key="home" component={Home} hideNavBar />
             <Scene key="welcome" component={Welcome} hideNavBar />
+            <Scene key="forgetpass" component={ForgetPassword} hideNavBar />
+            <Scene key="changepass" component={ChangePassword} hideNavBar />
+            <Scene key="cart" component={Cart} hideNavBar />
            
      
           </Scene>
