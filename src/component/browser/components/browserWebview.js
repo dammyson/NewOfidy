@@ -106,7 +106,7 @@ export default class BrowserWebView extends Component {
 
   _onNavigationStateChange(webViewState) {
     if(webViewState.url.includes('shopping-cart.php?user_id=')){
-      this.props.setInput(this.getValue('ofidy.com'))
+      this.props.setInput(this.getValue('https://www.ofidy.com/'))
     }else{
       this.props.setInput(this.getValue(webViewState.url))
     }
@@ -133,6 +133,7 @@ export default class BrowserWebView extends Component {
    
   }
   cart() {
+    this.props.setInput(this.getValue('https://www.ofidy.com/'))
     const { user_id, session_id,} = this.state
     this.props.cleanSearchUrl('https://www.ofidy.com/shopping-cart.php?user_id='+user_id+'&session_id='+session_id+ '&currency=NGN')
   }
