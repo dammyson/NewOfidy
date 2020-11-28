@@ -12,7 +12,6 @@ export default (props) => {
   const { url, loading } = props
   return (
     <View style={styles.bg}>
-      <OmniSearch {...props} />
       <BrowserWebView {...props} />
     </View>
   )

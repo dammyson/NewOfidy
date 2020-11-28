@@ -17,12 +17,13 @@ import Modal, { SlideAnimation, ModalContent } from 'react-native-modals';
 import {
   MaterialIndicator,
 } from 'react-native-indicators';
-
-
+//import ProgressWebView from "react-native-progress-webview";
+import { Toast, } from 'native-base';
 import GestureView from 'react-native-gesture-view'
 import { Icon, } from 'react-native-elements'
 import { PROXY_DOMAIN } from '../constants'
 import { Actions } from 'react-native-router-flux';
+
 
 export default class BrowserWebView extends Component {
 
@@ -40,7 +41,8 @@ export default class BrowserWebView extends Component {
       qty: 1,
       color: 'default',
       size: 'default',
-      loading_addcart: false
+      loading_addcart: false,
+      progress: true
 
     };
   }
@@ -56,14 +58,18 @@ export default class BrowserWebView extends Component {
     AsyncStorage.getItem('aut').then((value) => {
       this.setState({ 'aut': value.toString() })
     })
+
+    setTimeout(() => {
+      this.setState({ progress: false })
+    }, 9000);
   }
   addTocart() {
     const { data, aut, user_id, session_id, qty, color, size, } = this.state
     this.setState({ is_visible_choose_color: false, })
 
-    
 
-    this.setState({ loading_addcart: true})
+
+    this.setState({ loading_addcart: true })
 
     const formData = new FormData();
     formData.append('user_id', user_id);
@@ -72,31 +78,32 @@ export default class BrowserWebView extends Component {
     formData.append('size', size);
     formData.append('colour', color);
     formData.append('url', data.url);
-    formData.append('ttl',data.title);
+    formData.append('ttl', data.title);
     formData.append('app', Platform.OS);
     formData.append('guestlogin', 0);
 
     console.warn(formData)
 
-    fetch('https://www.ofidy.com/asp_files/write_text.php', { method: 'POST',  headers: {
-      Accept: 'application/json',
-    }, body:formData,  
+    fetch('https://www.ofidy.com/asp_files/write_text.php', {
+      method: 'POST', headers: {
+        Accept: 'application/json',
+      }, body: formData,
     })
-    .then(res => res.text())
-    .then(res => {
-      console.warn(res);
-      if(res.includes("Success")){
-         this.setState({ loading_addcart: false})
-       Alert.alert('Success', 'Thank you. has been submitted, and should appear in your cart within the next 2-3 minutes', [{text: 'Okay'}])
-      }else{
-        Alert.alert('Action Fail', 'Please try to add your item to cart again', [{text: 'Okay'}])
-        this.setState({ loading_addcart: false})
-      }
-    }).catch((error)=>{
-      console.warn(error);
-      this.setState({ loading_addcart: false})
-      alert(error.message);
-   });
+      .then(res => res.text())
+      .then(res => {
+        console.warn(res);
+        if (res.includes("Success")) {
+          this.setState({ loading_addcart: false })
+          Alert.alert('Success', 'Thank you. has been submitted, and should appear in your cart within the next 2-3 minutes', [{ text: 'Okay' }])
+        } else {
+          Alert.alert('Action Fail', 'Please try to add your item to cart again', [{ text: 'Okay' }])
+          this.setState({ loading_addcart: false })
+        }
+      }).catch((error) => {
+        console.warn(error);
+        this.setState({ loading_addcart: false })
+        alert(error.message);
+      });
 
   }
   getValue = url => {
@@ -105,19 +112,19 @@ export default class BrowserWebView extends Component {
   }
 
   _onNavigationStateChange(webViewState) {
-    if(webViewState.url.includes('shopping-cart.php?user_id=')){
+    if (webViewState.url.includes('shopping-cart.php?user_id=')) {
       this.props.setInput(this.getValue('https://www.ofidy.com/'))
-    }else{
+    } else {
       this.props.setInput(this.getValue(webViewState.url))
     }
-   
+
     this.setState({
       data: webViewState,
 
     })
   }
   home() {
-    this.props.cleanSearchUrl('https://www.ofidy.com/shopping-browser-welcome.php')
+    this.props.cleanSearchUrl('https://m.ofidy.com/shopping-browser.php')
   }
   componentWillMount() {
     BackHandler.addEventListener('hardwareBackPress', this.goBack.bind(this))
@@ -130,17 +137,77 @@ export default class BrowserWebView extends Component {
   goReload() {
     console.warn(this.state.data.url);
     this.props.cleanSearchUrl(this.state.data.url)
-   
+
   }
   cart() {
     this.props.setInput(this.getValue('https://www.ofidy.com/'))
-    const { user_id, session_id,} = this.state
-    this.props.cleanSearchUrl('https://www.ofidy.com/shopping-cart.php?user_id='+user_id+'&session_id='+session_id+ '&currency=NGN')
+    const { user_id, session_id, } = this.state
+    this.props.cleanSearchUrl('https://www.ofidy.com/shopping-cart.php?user_id=' + user_id + '&session_id=' + session_id + '&currency=NGN')
   }
 
   goForward() {
     this.props.goForward(this.webview)
   }
+
+  _onLoadProgress = (syntheticEvent) => {
+    Toast.show({
+      text: 'Please wait Loading!',
+      position: 'bottom',
+      type: 'error',
+      buttonText: 'Dismiss',
+      duration: 2500
+    });
+  };
+
+  _onError = (syntheticEvent) => {
+    Toast.show({
+      text: 'Please wait error!',
+      position: 'bottom',
+      type: 'error',
+      buttonText: 'Dismiss',
+      duration: 2500
+    });
+  };
+
+  _onLoadStart = (syntheticEvent) => {
+    Toast.show({
+      text: 'Please wait staryLoading!',
+      position: 'bottom',
+      type: 'error',
+      buttonText: 'Dismiss',
+      duration: 2500
+    });
+  };
+
+  _onLoadEnd = (syntheticEvent) => {
+    Toast.show({
+      text: 'Please wait endLoading!',
+      position: 'bottom',
+      type: 'error',
+      buttonText: 'Dismiss',
+      duration: 2500
+    });
+  };
+
+
+
+  displaySpinner() {
+    return (
+      <View>
+
+        <TouchableOpacity onPress={() => this.cart()} style={{ marginRight: 30 }}>
+          <Icon
+            active
+            name="shoppingcart"
+            type='antdesign'
+            color='#D3D3D3'
+          />
+
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
 
   render() {
     const { url, loading, onLoadEnd } = this.props
@@ -150,9 +217,7 @@ export default class BrowserWebView extends Component {
 
     return (
       <View style={{ flex: 1 }}>
-    
-
-      <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }}>
 
           <GestureView
             style={_style}
@@ -163,7 +228,13 @@ export default class BrowserWebView extends Component {
               source={{ uri: url }}
               onLoadEnd={this.props.onLoadEnd}
               onNavigationStateChange={this._onNavigationStateChange.bind(this)}
-              renderLoading={true}
+              automaticallyAdjustContentInsets={false}
+
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+              decelerationRate="normal"
+              startInLoadingState={true}
+              scalesPageToFit={this.state.scalesPageToFit}
             />
           </GestureView>
         </View>
@@ -184,7 +255,7 @@ export default class BrowserWebView extends Component {
 
           </View>
           <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center', alignSelf: "center", }}>
-            <TouchableOpacity  onPress={()=> this.cart()} style={{ marginRight: 30 }}>
+            <TouchableOpacity onPress={() => this.cart()} style={{ marginRight: 30 }}>
               <Icon
                 active
                 name="shoppingcart"
@@ -208,20 +279,20 @@ export default class BrowserWebView extends Component {
 
 
             {!loading ?
-           <TouchableOpacity onPress={() => this.goReload()} style={{ marginLeft: 30}}>
-           <Icon
-             active
-             name="refresh"
-             type='material-community'
-             color='#D3D3D3'
-           />
+              <TouchableOpacity onPress={() => this.goReload()} style={{ marginLeft: 30 }}>
+                <Icon
+                  active
+                  name="refresh"
+                  type='material-community'
+                  color='#D3D3D3'
+                />
 
-         </TouchableOpacity> 
-          :
-          <View  style={{ marginLeft: 30}}>
-          <ActivityIndicator size="small" color="#fff" />
-          </View>
-          }
+              </TouchableOpacity>
+              :
+              <View style={{ marginLeft: 30 }}>
+                <ActivityIndicator size="small" color="#fff" />
+              </View>
+            }
 
 
           </View>
@@ -242,23 +313,23 @@ export default class BrowserWebView extends Component {
         </View>
 
         {
-                this.state.loading_addcart ?
+          this.state.loading_addcart ?
 
-        <TouchableOpacity  style={styles.fab} >
-         <MaterialIndicator color='white' />
-        </TouchableOpacity>
-        :
-        <TouchableOpacity  onPress={() => this.setState({ is_visible_choose_qty: true })} style={styles.fab} >
-        <Icon
-          active
-          name="cart-plus"
-          type='material-community'
-          color='#fff'
-          size={25}
-        />
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.fab} >
+              <MaterialIndicator color='white' />
+            </TouchableOpacity>
+            :
+            <TouchableOpacity onPress={() => this.setState({ is_visible_choose_qty: true })} style={styles.fab} >
+              <Icon
+                active
+                name="cart-plus"
+                type='material-community'
+                color='#fff'
+                size={25}
+              />
+            </TouchableOpacity>
 
-  }
+        }
 
 
         <Modal
@@ -428,7 +499,7 @@ const styles = StyleSheet.create({
   },
   _webview: {
     flex: 1,
-    display: 'none'
+
   },
   fab: {
     height: 60,
@@ -476,5 +547,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingBottom: 10,
     marginTop: 10,
-  }
+  },
+  placeholder: {
+    marginTop: 40,
+    textAlign: 'center',
+    fontSize: 20
+  },
+  input: {
+    height: 36,
+    marginTop: 10,
+    padding: 6,
+    flex: 1,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    textAlign: 'left',
+    fontSize: 16
+  },
+  toolbar: {
+    height: 80,
+    padding: 14,
+    backgroundColor: '#004701',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
 })

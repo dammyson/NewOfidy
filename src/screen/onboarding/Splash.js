@@ -14,7 +14,6 @@ export default class Splash extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      
       user_id: '',
       loading: false
 
@@ -22,11 +21,10 @@ export default class Splash extends Component {
   }
     async componentDidMount() {
       setTimeout(() => {
-    this.initPage();
-    // Actions.cart();
+   this.initPage();
+   //Actions.home();
           }, 3000);
     }
-
     getUser(){
       AsyncStorage.getItem('user_id').then((value) => {
         this.getSessionId(value)
@@ -38,7 +36,7 @@ export default class Splash extends Component {
       this.setState({ loading: true, })
   
   
-      fetch('http://www.ofidy.com/dev-mobile/v1/api.php?code=customer&action=getSessionId&userid='+user, { method: 'Get',  headers: {
+      fetch('https://www.ofidy.com/dev-mobile/v1/api.php?code=customer&action=getSessionId&userid='+user, { method: 'Get',  headers: {
         Accept: 'application/json',
       }, 
       })

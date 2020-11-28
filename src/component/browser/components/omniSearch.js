@@ -11,7 +11,7 @@ import { Icon, } from 'react-native-elements'
 export default class OmniSearch extends Component {
 
   async componentDidMount() {
-  this.props.cleanSearchUrl('https://ofidy.com/shopping-browser.php')
+  this.props.cleanSearchUrl('https://m.ofidy.com/shopping-browser.php')
   }
 
   onSubmitEditing = _ => {
@@ -60,4 +60,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  
 })
